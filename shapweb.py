@@ -13,6 +13,17 @@ def main():
     # 加载模型
     lgbm = joblib.load('xgb_model.pkl')  # 确保路径正确
 
+    # 特征名称映射字典
+    feature_name_mapping = {
+        "查尔斯共病指数": "CCI指数",
+        "认知障碍": "认知能力",
+        "体育锻炼运动量": "体育锻炼运动量",
+        "慢性疼痛": "慢性疼痛",
+        "营养状态": "营养状态",
+        "HbA1c": "HbA1c",
+        "步速下降": "步速下降",
+    }
+
     # 定义输入特征
     class Subject:
         def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降):
@@ -25,18 +36,21 @@ def main():
             self.步速下降 = 步速下降
 
         def make_predict(self):
-            # 特征编码
+            # 将输入数据转化为 DataFrame
             subject_data = {
+                "查尔斯共病指数": [self.查尔斯共病指数],
                 "认知障碍": [self.认知障碍],
                 "体育锻炼运动量": [0 if self.体育锻炼运动量 == "低运动量" else 1 if self.体育锻炼运动量 == "中运动量" else 2],
                 "慢性疼痛": [self.慢性疼痛],
                 "营养状态": [0 if self.营养状态 == "营养良好" else 1 if self.营养状态 == "营养不良风险" else 2],
                 "HbA1c": [self.HbA1c],
-                "查尔斯共病指数": [self.查尔斯共病指数],
                 "步速下降": [self.步速下降],
             }
 
             df_subject = pd.DataFrame(subject_data)
+
+            # 映射特征名称
+            df_subject.rename(columns=feature_name_mapping, inplace=True)
 
             # 模型预测
             try:
