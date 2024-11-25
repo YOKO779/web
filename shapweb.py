@@ -13,14 +13,7 @@ st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout=
 st.title("老年糖尿病患者衰弱风险预测")
 
 # 加载黑体字体
-font_path = "C:/Windows/Fonts/simhei.ttf"  # 替换为黑体的实际路径
-try:
-    mpl.font_manager.fontManager.addfont(font_path)  # 加载字体
-    plt.rcParams["font.sans-serif"] = ["SimHei"]  # 设置全局字体为黑体
-    plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
-except FileNotFoundError:
-    st.warning("未找到 SimHei 字体文件，请检查路径或上传字体文件。")
-    plt.rcParams["font.sans-serif"] = ["Arial"]
+font_path = "fonts/SimHei.ttf"  # 引用仓库中的字体文件
 
 def main():
     # 加载模型
