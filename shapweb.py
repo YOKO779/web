@@ -4,16 +4,25 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import shap
-from matplotlib import rcParams
+from matplotlib import font_manager, rcParams
 
-# 设置中文字体，避免中文乱码
-rcParams['font.family'] = 'SimHei'  # 黑体 (SimHei) for Windows or macOS 可以使用 'Songti'
-rcParams['axes.unicode_minus'] = False  # 防止负号显示问题
 
 def main():
-    # 加载模型
+    # 加载 XGBoost 模型
     model = joblib.load('xgb_model.pkl')
 
+    # 设置中文字体
+    font_path = "C:/Windows/Fonts/simsunb.ttf"  # 确保路径正确
+    try:
+        font = font_manager.FontProperties(fname=font_path)
+        rcParams['font.sans-serif'] = [font.get_name()]  # 设置为 SimSun Bold
+        rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+        print(f"成功加载字体: {font.get_name()}")
+    except FileNotFoundError:
+        st.warning("未找到字体文件，请检查路径或安装字体。")
+        rcParams['font.sans-serif'] = ['Arial']  # 使用默认字体
+
+    # 定义用户输入的类
     class Subject:
         def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降):
             self.认知障碍 = 认知障碍
@@ -25,13 +34,6 @@ def main():
             self.步速下降 = 步速下降
 
         def make_predict(self):
-            # 设置字体（使用 Noto Sans SC）
-            import matplotlib.pyplot as plt
-            from matplotlib import rcParams
-
-            rcParams['font.sans-serif'] = ['Noto Sans SC']  # 使用 Google Fonts 的 Noto Sans SC
-            rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
-
             # 数据映射
             subject_data = {
                 "认知障碍": [self.认知障碍],
@@ -53,33 +55,28 @@ def main():
                 </div>
             """, unsafe_allow_html=True)
 
-            # SHAP 可视化部分
+            # SHAP 可视化
             explainer = shap.TreeExplainer(model)
             shap_values = explainer.shap_values(df_subject)
 
-            # 检查 SHAP 的输出
-            if len(shap_values) == 0:
-                st.error("SHAP 计算失败，请检查输入数据或模型。")
-                return
-
-            # 获取基值（expected_value）
+            # 获取基值
             if isinstance(explainer.expected_value, list):
                 base_value = explainer.expected_value[0]
             else:
                 base_value = explainer.expected_value
 
-            # 绘制 SHAP force_plot 图
+            # 绘制 SHAP force_plot
             shap.force_plot(
                 base_value,
-                shap_values[0],         # 使用第一个样本的 SHAP 值
-                df_subject.iloc[0, :],  # 输入第一个样本数据
+                shap_values[0],
+                df_subject.iloc[0, :],
                 matplotlib=True
             )
-            st.pyplot(plt.gcf())  # 将绘图渲染到 Streamlit
+            st.pyplot(plt.gcf())  # 显示图形
 
-            # 保存 SHAP 图为 PDF 文件
-            plt.savefig("force_plot.pdf", bbox_inches="tight")
-            plt.close()  # 关闭图形，防止后续绘图冲突
+            # 保存图像为 PNG 文件
+            plt.savefig("force_plot.png", bbox_inches="tight", dpi=300)
+            plt.close()  # 关闭图形，防止内存占用
 
     # Streamlit 页面配置
     st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
