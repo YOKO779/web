@@ -25,17 +25,11 @@ def main():
             from matplotlib import rcParams
             from matplotlib import font_manager
 
-            # 设置字体以支持中文显示
-            font_path = "C:/Windows/Fonts/SimsunExtG.ttf"  # 宋体路径
-            try:
-                # 尝试加载宋体字体
-                font = font_manager.FontProperties(fname=font_path)
-                rcParams['font.sans-serif'] = [font.get_name()]
-            except FileNotFoundError:
-                st.warning("未找到字体 SimSun，请确保路径正确或安装宋体字体。")
-                rcParams['font.sans-serif'] = ['Arial']  # 默认字体
+           mpl.font_manager.fontManager.addfont('字体/SimHei.ttf') #临时注册新的全局字体
 
-            rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+         plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
+
+        plt.rcParams['axes.unicode_minus']=False#用来正常显示负号
 
             # 数据映射
             subject_data = {
