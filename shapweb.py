@@ -21,17 +21,12 @@ def main():
             self.步速下降 = 步速下降
 
         def make_predict(self):
+            # 设置字体（使用 Noto Sans SC）
             import matplotlib.pyplot as plt
             from matplotlib import rcParams
-            from matplotlib import font_manager
 
-      import matplotlib.pyplot as plt
-     from matplotlib import rcParams
-
-    # 使用网络字体（需保证网络连接畅通）
-   rcParams['font.sans-serif'] = ['Noto Sans SC']
-   rcParams['axes.unicode_minus'] = False
-
+            rcParams['font.sans-serif'] = ['Noto Sans SC']  # 使用 Google Fonts 的 Noto Sans SC
+            rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
             # 数据映射
             subject_data = {
