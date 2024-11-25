@@ -4,12 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import shap
-import matplotlib.pyplot as plt
-from matplotlib import rcParams
 
-# 设置字体为 SimHei（黑体），防止中文乱码
-rcParams['font.sans-serif'] = ['SimHei']  # 使用黑体
-rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 def main():
     # 加载模型
@@ -26,6 +21,21 @@ def main():
             self.步速下降 = 步速下降
 
         def make_predict(self):
+            import matplotlib.pyplot as plt
+            from matplotlib import rcParams
+            from matplotlib import font_manager
+
+            # 设置字体以支持中文显示
+            font_path = "C:/Windows/Fonts/simhei.ttf"
+            try:
+                font = font_manager.FontProperties(fname=font_path)
+                rcParams['font.sans-serif'] = [font.get_name()]
+            except FileNotFoundError:
+                st.warning("未找到中文字体 SimHei，可能导致中文显示乱码。请检查字体路径。")
+                rcParams['font.sans-serif'] = ['Arial']
+
+            rcParams['axes.unicode_minus'] = False
+
             # 数据映射
             subject_data = {
                 "认知障碍": [self.认知障碍],
@@ -57,7 +67,7 @@ def main():
             else:
                 base_value = explainer.expected_value
 
-            # 绘制 SHAP 图
+            # 绘制 SHAP force_plot 图
             shap.force_plot(
                 base_value,
                 shap_values[0],
@@ -65,6 +75,9 @@ def main():
                 matplotlib=True
             )
             st.pyplot(plt.gcf())
+
+            # 保存 SHAP 图为 PDF 文件
+            plt.savefig("force_plot.pdf", bbox_inches="tight")
 
     # Streamlit 页面配置
     st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
