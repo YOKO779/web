@@ -9,16 +9,9 @@ import matplotlib as mpl
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
-# 设置字体以支持中文显示
-try:
-    font_path = "字体/SimHei.ttf"  # 确保字体文件路径正确
-    mpl.font_manager.fontManager.addfont(font_path)  # 注册字体
-    plt.rcParams["font.sans-serif"] = ["SimHei"]  # 设置字体为 SimHei
-    plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
-    print("成功加载字体 SimHei")
-except FileNotFoundError:
-    st.warning("未找到 SimHei 字体文件，请检查路径或上传字体文件。")
-    plt.rcParams["font.sans-serif"] = ["Arial"]  # 退而求其次使用 Arial 字体
+font_path = "C:/Windows/Fonts/SimHei.ttf"
+mpl.font_manager.fontManager.addfont(font_path)
+
 
 def main():
     # 加载模型
