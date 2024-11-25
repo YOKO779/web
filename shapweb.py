@@ -25,11 +25,13 @@ def main():
             from matplotlib import rcParams
             from matplotlib import font_manager
 
-           mpl.font_manager.fontManager.addfont('字体/SimHei.ttf') #临时注册新的全局字体
+      import matplotlib.pyplot as plt
+     from matplotlib import rcParams
 
-         plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
+    # 使用网络字体（需保证网络连接畅通）
+   rcParams['font.sans-serif'] = ['Noto Sans SC']
+   rcParams['axes.unicode_minus'] = False
 
-        plt.rcParams['axes.unicode_minus']=False#用来正常显示负号
 
             # 数据映射
             subject_data = {
