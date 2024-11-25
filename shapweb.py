@@ -8,9 +8,8 @@ import shap
 
 def main():
     # 加载模型
-    model = joblib.load('xgb_model.pkl')  # 确保路径正确
+    model = joblib.load('xgb_model.pkl')
 
-    # 定义特征输入类
     class Subject:
         def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降):
             self.认知障碍 = 认知障碍
@@ -22,7 +21,7 @@ def main():
             self.步速下降 = 步速下降
 
         def make_predict(self):
-            # 映射数据
+            # 数据映射
             subject_data = {
                 "认知障碍": [self.认知障碍],
                 "体育锻炼运动量": [self.体育锻炼运动量],
@@ -32,7 +31,6 @@ def main():
                 "查尔斯共病指数": [self.查尔斯共病指数],
                 "步速下降": [self.步速下降]
             }
-
             df_subject = pd.DataFrame(subject_data)
 
             # 模型预测
@@ -45,29 +43,28 @@ def main():
             """, unsafe_allow_html=True)
 
             # SHAP 可视化
-            explainer = shap.Explainer(model)
+            explainer = shap.TreeExplainer(model)
             shap_values = explainer.shap_values(df_subject)
+
+            # 获取基值（expected_value）
+            if isinstance(explainer.expected_value, list):
+                base_value = explainer.expected_value[0]
+            else:
+                base_value = explainer.expected_value
 
             # 绘制 SHAP 图
             shap.force_plot(
-                explainer.expected_value[1],
-                shap_values[1][0, :],
+                base_value,
+                shap_values[0],
                 df_subject.iloc[0, :],
                 matplotlib=True
             )
             st.pyplot(plt.gcf())
 
-    # 设置页面配置
+    # Streamlit 页面配置
     st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
-    # 页面标题
-    st.markdown(f"""
-        <div style="text-align: center;">
-            <h1>老年糖尿病患者衰弱风险预测</h1>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # 输入特征
+    # 输入字段
     认知障碍 = st.selectbox("认知障碍 (1: 是, 0: 否)", [1, 0], index=1)
     体育锻炼运动量 = st.selectbox("体育锻炼运动量 (1: 低, 2: 中, 3: 高)", [1, 2, 3], index=0)
     慢性疼痛 = st.selectbox("慢性疼痛 (1: 有, 0: 无)", [1, 0], index=1)
@@ -78,9 +75,7 @@ def main():
 
     # 提交按钮
     if st.button("提交"):
-        user = Subject(
-            认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降
-        )
+        user = Subject(认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降)
         user.make_predict()
 
 
