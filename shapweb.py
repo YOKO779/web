@@ -56,7 +56,6 @@ def main():
             st.write(f"""
                 <div style="text-align: center; font-size: 20px;">
                     <b>预测类别: {predicted_class}</b><br>
-                    <b>预测概率: {predicted_probability:.2f}%</b><br>
                     <b>模型预测衰弱风险为: {predicted_proba[1] * 100:.2f}%</b>
                 </div>
             """, unsafe_allow_html=True)
