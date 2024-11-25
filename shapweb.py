@@ -50,7 +50,6 @@ def main():
 
             # 模型预测
             predicted_class = model.predict(df_subject)[0]  # 获取预测类别
-            predicted_proba = model.predict_proba(df_subject)[0]  # 获取所有类别的概率
             predicted_probability = predicted_proba[predicted_class] * 100  # 获取对应类别的概率
 
             # 显示预测结果
