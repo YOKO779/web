@@ -9,7 +9,8 @@ import matplotlib as mpl
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
-# Streamlit user interfacest.title("老年糖尿病患者衰弱风险预测")
+# 设置页面标题
+st.title("老年糖尿病患者衰弱风险预测")
 
 def main():
     # 加载模型
