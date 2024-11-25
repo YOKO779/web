@@ -9,6 +9,8 @@ import matplotlib as mpl
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
+# Streamlit user interfacest.title("老年糖尿病患者衰弱风险预测")
+
 # 设置字体
 font_path = "fonts/NotoSansSC-Black.otf"  # 替换为字体的实际路径
 try:
@@ -48,18 +50,9 @@ def main():
             }
             df_subject = pd.DataFrame(subject_data)
 
-            # 模型预测类别
-            predicted_class = model.predict(df_subject)[0]
-            # 模型预测概率
+            # 模型预测
             prediction = model.predict_proba(df_subject)[:, 1]
             adjusted_prediction = np.round(prediction * 100, 2)
-
-            # 显示预测类别和风险
-            st.write(f"""
-                <div style="text-align: center; font-size: 20px;">
-                    <b>预测类别: {predicted_class}</b>
-                </div>
-            """, unsafe_allow_html=True)
             st.write(f"""
                 <div style="text-align: center; font-size: 20px;">
                     <b>模型预测衰弱风险为: {adjusted_prediction[0]}%</b>
