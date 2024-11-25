@@ -49,11 +49,16 @@ def main():
             df_subject = pd.DataFrame(subject_data)
 
             # 模型预测
-            prediction = model.predict_proba(df_subject)[:, 1]
-            adjusted_prediction = np.round(prediction * 100, 2)
+            predicted_class = model.predict(df_subject)[0]  # 获取预测类别
+            predicted_proba = model.predict_proba(df_subject)[0]  # 获取所有类别的概率
+            predicted_probability = predicted_proba[predicted_class] * 100  # 获取对应类别的概率
+
+            # 显示预测结果
             st.write(f"""
                 <div style="text-align: center; font-size: 20px;">
-                    <b>模型预测衰弱风险为: {adjusted_prediction[0]}%</b>
+                    <b>预测类别: {predicted_class}</b><br>
+                    <b>预测概率: {predicted_probability:.2f}%</b><br>
+                    <b>模型预测衰弱风险为: {predicted_proba[1] * 100:.2f}%</b>
                 </div>
             """, unsafe_allow_html=True)
 
