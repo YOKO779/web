@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import shap
 import matplotlib as mpl
+from matplotlib import font_manager
 
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
@@ -12,33 +13,17 @@ st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout=
 # 设置页面标题
 st.title("老年糖尿病患者衰弱风险预测")
 
-font_path = "fonts/SimHei.ttf"  # 字体文件路径
+# 设置字体路径
+font_path = "fonts/SimHei.ttf"  # 替换为实际字体路径
 try:
+    # 加载字体
     mpl.font_manager.fontManager.addfont(font_path)
+    simhei_font = font_manager.FontProperties(fname=font_path)
     plt.rcParams["font.sans-serif"] = ["SimHei"]
     plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
     print("成功加载字体: SimHei")
 except FileNotFoundError:
-    print("未找到字体文件，请检查路径或上传字体文件。")
-
-from matplotlib import font_manager
-
-# 设置字体路径
-font_path = "fonts/SimHei.ttf"  # 替换为实际路径
-simhei_font = font_manager.FontProperties(fname=font_path)
-
-# 在 force_plot 中传入 fontproperties
-shap.force_plot(
-    base_value,
-    shap_values[0],
-    df_subject.iloc[0, :],
-    matplotlib=True
-)
-plt.gcf().set_size_inches(10, 2)  # 可调整图片大小
-plt.rcParams["font.family"] = simhei_font.get_name()  # 确保字体设置正确
-st.pyplot(plt.gcf())  # 渲染图片
-
-
+    st.warning("未找到字体文件，请检查路径或上传字体文件。")
 
 def main():
     # 加载模型
@@ -88,12 +73,14 @@ def main():
                 base_value = explainer.expected_value
 
             # 绘制 SHAP force_plot
+            plt.figure(figsize=(10, 2))  # 调整图片大小
             shap.force_plot(
                 base_value,
                 shap_values[0],
                 df_subject.iloc[0, :],
                 matplotlib=True
             )
+            plt.rcParams["font.family"] = simhei_font.get_name()  # 应用 SimHei 字体
             st.pyplot(plt.gcf())  # 显示图形
 
             # 保存图像为 PNG 文件
