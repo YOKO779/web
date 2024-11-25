@@ -7,6 +7,10 @@ import shap
 from matplotlib import font_manager, rcParams
 
 
+# 设置页面配置（必须是第一条 Streamlit 命令）
+st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
+
+
 def main():
     # 加载 XGBoost 模型
     model = joblib.load('xgb_model.pkl')
@@ -77,9 +81,6 @@ def main():
             # 保存图像为 PNG 文件
             plt.savefig("force_plot.png", bbox_inches="tight", dpi=300)
             plt.close()  # 关闭图形，防止内存占用
-
-    # Streamlit 页面配置
-    st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
     # 输入字段
     认知障碍 = st.selectbox("认知障碍 (1: 是, 0: 否)", [1, 0], index=1)
