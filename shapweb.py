@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 
 
 def main():
+    # 设置页面配置
+    st.set_page_config(page_title='老年糖尿病患者衰弱风险预测')
+
     # 加载模型
-    lgbm = joblib.load('xgb_model.pkl')  # 更新模型路径
-    # lgbm = joblib.load('./lgbm.pkl')  # 上传到 GitHub 所需路径，路径无需更改
+    lgbm = joblib.load('xgb_model.pkl')  # 确保路径正确
 
     # 定义输入特征
-
-    # 定义特征输入类
     class Subject:
         def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降):
             self.认知障碍 = 认知障碍
@@ -25,12 +25,12 @@ def main():
             self.步速下降 = 步速下降
 
         def make_predict(self):
-            # 将输入数据转化为 DataFrame
+            # 特征编码
             subject_data = {
                 "认知障碍": [self.认知障碍],
-                "体育锻炼运动量": [self.体育锻炼运动量],
+                "体育锻炼运动量": [0 if self.体育锻炼运动量 == "低运动量" else 1 if self.体育锻炼运动量 == "中运动量" else 2],
                 "慢性疼痛": [self.慢性疼痛],
-                "营养状态": [self.营养状态],
+                "营养状态": [0 if self.营养状态 == "营养良好" else 1 if self.营养状态 == "营养不良风险" else 2],
                 "HbA1c": [self.HbA1c],
                 "查尔斯共病指数": [self.查尔斯共病指数],
                 "步速下降": [self.步速下降],
@@ -39,33 +39,28 @@ def main():
             df_subject = pd.DataFrame(subject_data)
 
             # 模型预测
-            prediction = lgbm.predict_proba(df_subject)[:, 1]
-            adjusted_prediction = np.round(prediction * 100, 2)
-            st.write(f"""
-                <div class='all'>
-                    <p style='text-align: center; font-size: 20px;'>
-                        <b>模型预测老年糖尿病患者衰弱风险为 {adjusted_prediction[0]} %</b>
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
+            try:
+                prediction = lgbm.predict_proba(df_subject)[:, 1]
+                adjusted_prediction = np.round(prediction * 100, 2)
+                st.write(f"模型预测老年糖尿病患者衰弱风险为 {adjusted_prediction[0]} %")
 
-            # SHAP 可视化
-            explainer = shap.Explainer(lgbm)
-            shap_values = explainer.shap_values(df_subject)
+                # SHAP 可视化
+                explainer = shap.TreeExplainer(lgbm)
+                shap_values = explainer.shap_values(df_subject)
 
-            # 绘制 SHAP 力图
-            shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], df_subject.iloc[0, :], matplotlib=True)
-            st.pyplot(plt.gcf())
-
-    # 设置页面配置
-    st.set_page_config(page_title='老年糖尿病患者衰弱风险预测')
+                # 绘制 SHAP 力图
+                shap.force_plot(explainer.expected_value, shap_values[0], df_subject.iloc[0, :], matplotlib=True)
+                st.pyplot(plt.gcf())
+                plt.clf()  # 清空画布
+            except Exception as e:
+                st.error(f"预测时发生错误：{str(e)}")
 
     # 页面标题
-    st.markdown(f"""
-                <div class='all'>
-                    <h1 style='text-align: center;'>老年糖尿病患者衰弱风险预测</h1>
-                </div>
-                """, unsafe_allow_html=True)
+    st.markdown("""
+        <div style='text-align: center;'>
+            <h1>老年糖尿病患者衰弱风险预测</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
     # 输入特征
     认知障碍 = st.selectbox("认知障碍 (是 = 1, 否 = 0)", [1, 0], index=1)
