@@ -26,15 +26,16 @@ def main():
             from matplotlib import font_manager
 
             # 设置字体以支持中文显示
-            font_path = "C:/Windows/Fonts/simsun.ttf"
+            font_path = "C:/Windows/Fonts/simsun.ttf"  # 宋体路径
             try:
+                # 尝试加载宋体字体
                 font = font_manager.FontProperties(fname=font_path)
                 rcParams['font.sans-serif'] = [font.get_name()]
             except FileNotFoundError:
-                st.warning("未找到中文字体 SimHei，可能导致中文显示乱码。请检查字体路径。")
-                rcParams['font.sans-serif'] = ['Arial']
+                st.warning("未找到字体 SimSun，请确保路径正确或安装宋体字体。")
+                rcParams['font.sans-serif'] = ['Arial']  # 默认字体
 
-            rcParams['axes.unicode_minus'] = False
+            rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
             # 数据映射
             subject_data = {
@@ -57,9 +58,14 @@ def main():
                 </div>
             """, unsafe_allow_html=True)
 
-            # SHAP 可视化
+            # SHAP 可视化部分
             explainer = shap.TreeExplainer(model)
             shap_values = explainer.shap_values(df_subject)
+
+            # 检查 SHAP 的输出
+            if len(shap_values) == 0:
+                st.error("SHAP 计算失败，请检查输入数据或模型。")
+                return
 
             # 获取基值（expected_value）
             if isinstance(explainer.expected_value, list):
@@ -70,14 +76,15 @@ def main():
             # 绘制 SHAP force_plot 图
             shap.force_plot(
                 base_value,
-                shap_values[0],
-                df_subject.iloc[0, :],
+                shap_values[0],         # 使用第一个样本的 SHAP 值
+                df_subject.iloc[0, :],  # 输入第一个样本数据
                 matplotlib=True
             )
-            st.pyplot(plt.gcf())
+            st.pyplot(plt.gcf())  # 将绘图渲染到 Streamlit
 
             # 保存 SHAP 图为 PDF 文件
             plt.savefig("force_plot.pdf", bbox_inches="tight")
+            plt.close()  # 关闭图形，防止后续绘图冲突
 
     # Streamlit 页面配置
     st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
