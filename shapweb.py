@@ -13,18 +13,6 @@ st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout=
 # 设置页面标题
 st.title("老年糖尿病患者衰弱风险预测")
 
-# 设置字体路径
-font_path = "fonts/SimHei.ttf"  # 替换为实际字体路径
-try:
-    # 加载字体
-    mpl.font_manager.fontManager.addfont(font_path)
-    simhei_font = font_manager.FontProperties(fname=font_path)
-    plt.rcParams["font.sans-serif"] = ["SimHei"]
-    plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
-    print("成功加载字体: SimHei")
-except FileNotFoundError:
-    st.warning("未找到字体文件，请检查路径或上传字体文件。")
-
 def main():
     # 加载模型
     model = joblib.load('xgb_model.pkl')
