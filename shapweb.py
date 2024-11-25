@@ -20,7 +20,6 @@ except FileNotFoundError:
     st.warning("未找到 NotoSansSC-Black 字体文件，请检查路径或上传字体文件。")
     plt.rcParams["font.sans-serif"] = ["Arial"]
 
-
 def main():
     # 加载模型
     model = joblib.load('xgb_model.pkl')
@@ -50,16 +49,11 @@ def main():
             df_subject = pd.DataFrame(subject_data)
 
             # 模型预测
-            predicted_class = model.predict(df_subject)[0]
-            predicted_proba = model.predict_proba(df_subject)[0]
-            adjusted_prediction = np.round(predicted_proba[predicted_class] * 100, 2)
-
-            # 显示预测结果
+            prediction = model.predict_proba(df_subject)[:, 1]
+            adjusted_prediction = np.round(prediction * 100, 2)
             st.write(f"""
                 <div style="text-align: center; font-size: 20px;">
-                    <b>预测类别: {predicted_class} （{'高风险' if predicted_class == 1 else '低风险'}）</b>
-                    <br>
-                    <b>模型预测衰弱风险为: {adjusted_prediction}%</b>
+                    <b>模型预测衰弱风险为: {adjusted_prediction[0]}%</b>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -68,7 +62,10 @@ def main():
             shap_values = explainer.shap_values(df_subject)
 
             # 获取基值
-            base_value = explainer.expected_value[0]
+            if isinstance(explainer.expected_value, list):
+                base_value = explainer.expected_value[0]
+            else:
+                base_value = explainer.expected_value
 
             # 绘制 SHAP force_plot
             shap.force_plot(
@@ -82,9 +79,6 @@ def main():
             # 保存图像为 PNG 文件
             plt.savefig("force_plot.png", bbox_inches="tight", dpi=300)
             plt.close()  # 关闭图形，防止内存占用
-
-            # 显示 SHAP 图像
-            st.image("force_plot.png", caption="SHAP 力图解释", use_column_width=True)
 
     # 输入字段
     认知障碍 = st.selectbox("认知障碍 (1: 是, 0: 否)", [1, 0], index=1)
