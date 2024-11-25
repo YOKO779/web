@@ -21,6 +21,24 @@ try:
 except FileNotFoundError:
     print("未找到字体文件，请检查路径或上传字体文件。")
 
+from matplotlib import font_manager
+
+# 设置字体路径
+font_path = "fonts/SimHei.ttf"  # 替换为实际路径
+simhei_font = font_manager.FontProperties(fname=font_path)
+
+# 在 force_plot 中传入 fontproperties
+shap.force_plot(
+    base_value,
+    shap_values[0],
+    df_subject.iloc[0, :],
+    matplotlib=True
+)
+plt.gcf().set_size_inches(10, 2)  # 可调整图片大小
+plt.rcParams["font.family"] = simhei_font.get_name()  # 确保字体设置正确
+st.pyplot(plt.gcf())  # 渲染图片
+
+
 
 def main():
     # 加载模型
