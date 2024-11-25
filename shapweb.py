@@ -6,45 +6,24 @@ import matplotlib.pyplot as plt
 import shap
 from matplotlib import font_manager, rcParams
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-
-# 临时注册新的全局字体
-mpl.font_manager.fontManager.addfont('字体/SimHei.ttf')  # 指定字体路径
-plt.rcParams["font.sans-serif"] = ["SimHei"]  # 设置字体为 SimHei
-plt.rcParams["axes.unicode_minus"] = False   # 确保负号正常显示
-
-
-
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
+# 设置字体
+try:
+    font_path = "C:/Windows/Fonts/simsunb.ttf"  # 确保路径正确
+    font = font_manager.FontProperties(fname=font_path)
+    rcParams["font.sans-serif"] = [font.get_name()]  # 设置字体为 SimSun-ExtB
+    rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
+    print(f"成功加载字体: {font.get_name()}")
+except FileNotFoundError:
+    st.warning("未找到字体文件，请检查路径或上传字体文件。")
+    rcParams["font.sans-serif"] = ["Arial"]  # 使用默认字体
 
+# 主程序
 def main():
     # 加载 XGBoost 模型
     model = joblib.load('xgb_model.pkl')
-
-  from matplotlib import font_manager, rcParams
-
-font_path = "C:/Windows/Fonts/simsunb.ttf"
-font = font_manager.FontProperties(fname=font_path)
-print("加载字体名称:", font.get_name())
-
-shap.force_plot(
-    base_value,
-    shap_values[0],
-    df_subject.iloc[0, :],
-    matplotlib=True
-)
-
-# 显示绘图
-st.pyplot(plt.gcf())
-
-# 保存图像
-plt.savefig("force_plot.png", bbox_inches="tight", dpi=300)
-plt.close()
-
-
 
     # 定义用户输入的类
     class Subject:
