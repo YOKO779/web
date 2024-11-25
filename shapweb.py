@@ -16,7 +16,7 @@ def main():
     model = joblib.load('xgb_model.pkl')
 
     # 设置中文字体
-    font_path = "C:/Windows/Fonts/simsunb.ttf"  # 确保路径正确
+    font_path = "C:/Windows/Fonts/SimSun-ExtB.ttf"  # 确保路径正确
     try:
         font = font_manager.FontProperties(fname=font_path)
         rcParams['font.sans-serif'] = [font.get_name()]  # 设置为 SimSun Bold
