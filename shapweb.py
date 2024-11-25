@@ -4,25 +4,24 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import shap
-from matplotlib import font_manager, rcParams
+import matplotlib as mpl
 
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
-# 设置字体
+# 设置字体以支持中文显示
 try:
-    font_path = "C:/Windows/Fonts/simsunb.ttf"  # 确保路径正确
-    font = font_manager.FontProperties(fname=font_path)
-    rcParams["font.sans-serif"] = [font.get_name()]  # 设置字体为 SimSun-ExtB
-    rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
-    print(f"成功加载字体: {font.get_name()}")
+    font_path = "字体/SimHei.ttf"  # 确保字体文件路径正确
+    mpl.font_manager.fontManager.addfont(font_path)  # 注册字体
+    plt.rcParams["font.sans-serif"] = ["SimHei"]  # 设置字体为 SimHei
+    plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
+    print("成功加载字体 SimHei")
 except FileNotFoundError:
-    st.warning("未找到字体文件，请检查路径或上传字体文件。")
-    rcParams["font.sans-serif"] = ["Arial"]  # 使用默认字体
+    st.warning("未找到 SimHei 字体文件，请检查路径或上传字体文件。")
+    plt.rcParams["font.sans-serif"] = ["Arial"]  # 退而求其次使用 Arial 字体
 
-# 主程序
 def main():
-    # 加载 XGBoost 模型
+    # 加载模型
     model = joblib.load('xgb_model.pkl')
 
     # 定义用户输入的类
@@ -94,7 +93,6 @@ def main():
     if st.button("提交"):
         user = Subject(认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降)
         user.make_predict()
-
 
 if __name__ == "__main__":
     main()
