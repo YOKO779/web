@@ -4,10 +4,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import shap
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
 
-# 设置中文字体，避免中文乱码
-rcParams['font.family'] = 'SimHei'  # 黑体 (SimHei) for Windows or macOS 可以使用 'Songti'
-rcParams['axes.unicode_minus'] = False  # 防止负号显示问题
+# 设置字体为 SimHei（黑体），防止中文乱码
+rcParams['font.sans-serif'] = ['SimHei']  # 使用黑体
+rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 def main():
     # 加载模型
