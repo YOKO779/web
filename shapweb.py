@@ -9,6 +9,16 @@ import matplotlib as mpl
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
+# 设置字体
+font_path = "fonts/NotoSansSC-Black.otf"  # 替换为字体的实际路径
+try:
+    mpl.font_manager.fontManager.addfont(font_path)
+    plt.rcParams["font.sans-serif"] = ["Noto Sans SC"]
+    plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
+    print("成功加载字体: NotoSansSC-Black")
+except FileNotFoundError:
+    st.warning("未找到 NotoSansSC-Black 字体文件，请检查路径或上传字体文件。")
+    plt.rcParams["font.sans-serif"] = ["Arial"]
 
 def main():
     # 加载模型
