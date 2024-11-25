@@ -5,6 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import shap
 
+# 设置中文字体，避免中文乱码
+rcParams['font.family'] = 'SimHei'  # 黑体 (SimHei) for Windows or macOS 可以使用 'Songti'
+rcParams['axes.unicode_minus'] = False  # 防止负号显示问题
 
 def main():
     # 加载模型
