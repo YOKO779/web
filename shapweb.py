@@ -9,9 +9,6 @@ import matplotlib as mpl
 # 设置页面配置（必须是第一条 Streamlit 命令）
 st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
 
-font_path = "C:/Windows/Fonts/SimHei.ttf"
-mpl.font_manager.fontManager.addfont(font_path)
-
 
 def main():
     # 加载模型
