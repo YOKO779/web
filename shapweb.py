@@ -26,7 +26,7 @@ def main():
             from matplotlib import font_manager
 
             # 设置字体以支持中文显示
-            font_path = "C:/Windows/Fonts/simsun.ttf"  # 宋体路径
+            font_path = "C:/Windows/Fonts/SimsunExtG.ttf"  # 宋体路径
             try:
                 # 尝试加载宋体字体
                 font = font_manager.FontProperties(fname=font_path)
