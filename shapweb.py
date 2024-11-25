@@ -51,29 +51,17 @@ def main():
 
             # 模型预测
             predicted_class = model.predict(df_subject)[0]
-            prediction = model.predict_proba(df_subject)[:, 1]
-            adjusted_prediction = np.round(prediction * 100, 2)
+            predicted_proba = model.predict_proba(df_subject)[0]
+            adjusted_prediction = np.round(predicted_proba[predicted_class] * 100, 2)
 
             # 显示预测结果
             st.write(f"""
                 <div style="text-align: center; font-size: 20px;">
-                    <b>模型预测衰弱风险为: {adjusted_prediction[0]}%</b>
+                    <b>预测类别: {predicted_class} （{'高风险' if predicted_class == 1 else '低风险'}）</b>
+                    <br>
+                    <b>模型预测衰弱风险为: {adjusted_prediction}%</b>
                 </div>
             """, unsafe_allow_html=True)
-
-            # 根据类别生成健康建议
-            if predicted_class == 1:
-                st.markdown("""
-                    ### 建议:
-                    - **高风险人群**: 请尽快就医，详细检查身体状况，寻求专业医疗建议。
-                    - 结合个人病史，注意调整生活方式。
-                """)
-            else:
-                st.markdown("""
-                    ### 建议:
-                    - **低风险人群**: 目前状况较好，请继续保持健康的生活方式。
-                    - 定期体检，监控健康指标变化。
-                """)
 
             # SHAP 可视化
             explainer = shap.TreeExplainer(model)
