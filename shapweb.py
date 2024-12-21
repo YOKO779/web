@@ -1,38 +1,21 @@
 import streamlit as st
+import shap
 import joblib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import shap
-import matplotlib as mpl
-from matplotlib import font_manager
-
-# 加载字体 SimHei
-font_path = "simhei.ttf"  # 字体文件路径
-try:
-    simhei_font = font_manager.FontProperties(fname=font_path)
-    mpl.font_manager.fontManager.addfont(font_path)
-    plt.rcParams["font.sans-serif"] = ["SimHei"]
-    plt.rcParams["axes.unicode_minus"] = False  # 确保负号正常显示
-    print("成功加载字体: SimHei")
-except FileNotFoundError:
-    simhei_font = None
-    print("未找到 SimHei 字体文件，请检查路径或上传字体文件。")
-
-# 设置页面配置（必须是第一条 Streamlit 命令）
-st.set_page_config(page_title="老年糖尿病患者衰弱风险预测", layout="centered")
-
-# 设置页面标题
-st.title("老年糖尿病患者衰弱风险预测")
 
 
 def main():
     # 加载模型
-    model = joblib.load('xgb_model.pkl')
+    lgbm = joblib.load('xgb_model.pkl')  # 更新模型路径
+    # lgbm = joblib.load('./lgbm.pkl')  # 上传到 GitHub 所需路径，路径无需更改
 
-    # 定义用户输入的类
+    # 定义输入特征
+
+    # 定义特征输入类
     class Subject:
-        def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降):
+        def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降,糖尿病肾病):
             self.认知障碍 = 认知障碍
             self.体育锻炼运动量 = 体育锻炼运动量
             self.慢性疼痛 = 慢性疼痛
@@ -40,9 +23,10 @@ def main():
             self.HbA1c = HbA1c
             self.查尔斯共病指数 = 查尔斯共病指数
             self.步速下降 = 步速下降
+            self.糖尿病肾病 = 糖尿病肾病
 
         def make_predict(self):
-            # 数据映射
+            # 将输入数据转化为 DataFrame
             subject_data = {
                 "认知障碍": [self.认知障碍],
                 "体育锻炼运动量": [self.体育锻炼运动量],
@@ -51,58 +35,54 @@ def main():
                 "HbA1c": [self.HbA1c],
                 "查尔斯共病指数": [self.查尔斯共病指数],
                 "步速下降": [self.步速下降],
+                "糖尿病肾病": [self.糖尿病肾病],
             }
+
             df_subject = pd.DataFrame(subject_data)
 
             # 模型预测
-            prediction = model.predict_proba(df_subject)[:, 1]
+            prediction = lgbm.predict_proba(df_subject)[:, 1]
             adjusted_prediction = np.round(prediction * 100, 2)
             st.write(f"""
-                <div style="text-align: center; font-size: 20px;">
-                    <b>模型预测衰弱风险为: {adjusted_prediction[0]}%</b>
+                <div class='all'>
+                    <p style='text-align: center; font-size: 20px;'>
+                        <b>模型预测老年糖尿病患者衰弱风险为 {adjusted_prediction[0]} %</b>
+                    </p>
                 </div>
             """, unsafe_allow_html=True)
 
             # SHAP 可视化
-            explainer = shap.TreeExplainer(model)
+            explainer = shap.Explainer(lgbm)
             shap_values = explainer.shap_values(df_subject)
 
-            # 获取基值
-            if isinstance(explainer.expected_value, list):
-                base_value = explainer.expected_value[0]
-            else:
-                base_value = explainer.expected_value
+            # 绘制 SHAP 力图
+            shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], df_subject.iloc[0, :], matplotlib=True)
+            st.pyplot(plt.gcf())
 
-            # 绘制 SHAP force_plot
-            plt.figure(figsize=(10, 2))  # 调整图片大小
-            shap.force_plot(
-                base_value,
-                shap_values[0],
-                df_subject.iloc[0, :],
-                matplotlib=True,
-            )
-            if simhei_font:
-                plt.rcParams["font.family"] = simhei_font.get_name()  # 应用 SimHei 字体
-            st.pyplot(plt.gcf())  # 显示图形
+    # 设置页面配置
+    st.set_page_config(page_title='老年糖尿病患者衰弱风险预测')
 
-            # 保存图像为 PNG 文件
-            plt.savefig("force_plot.png", bbox_inches="tight", dpi=300)
-            plt.close()  # 关闭图形，防止内存占用
+    # 页面标题
+    st.markdown(f"""
+                <div class='all'>
+                    <h1 style='text-align: center;'>老年糖尿病患者衰弱风险预测</h1>
+                </div>
+                """, unsafe_allow_html=True)
 
-    # 输入字段
-    认知障碍 = st.selectbox("认知障碍 (1: 是, 0: 否)", [1, 0], index=1)
-    体育锻炼运动量 = st.selectbox("体育锻炼运动量 (1: 低, 2: 中, 3: 高)", [1, 2, 3], index=0)
-    慢性疼痛 = st.selectbox("慢性疼痛 (1: 有, 0: 无)", [1, 0], index=1)
-    营养状态 = st.selectbox("营养状态 (0: 营养良好, 1: 营养不良风险, 2: 营养不良)", [0, 1, 2], index=0)
-    HbA1c = st.number_input("HbA1c 值 (mmol/L)", value=7.0, min_value=4.0, max_value=20.0, step=0.1)
-    查尔斯共病指数 = st.number_input("查尔斯共病指数", value=4, min_value=0, max_value=20, step=1)
-    步速下降 = st.selectbox("步速下降 (1: 是, 0: 否)", [1, 0], index=1)
+    # 输入特征
+    认知障碍 = st.selectbox("认知障碍 (是 = 1, 否 = 0)", [1, 0], index=1)
+    体育锻炼运动量 = st.selectbox("体育锻炼运动量", ["低运动量", "中运动量", "高运动量"], index=0)
+    慢性疼痛 = st.selectbox("慢性疼痛 (有 = 1, 无 = 0)", [1, 0], index=1)
+    营养状态 = st.selectbox("营养状态", ["营养良好", "营养不良风险", "营养不良"], index=0)
+    HbA1c = st.number_input("HbA1c (mmol/L)", value=7.0, min_value=4.0, max_value=20.0)
+    查尔斯共病指数 = st.number_input("查尔斯指数", value=2, min_value=0, max_value=30)
+    步速下降 = st.selectbox("步速下降 (是 = 1, 否 = 0)", [1, 0], index=1)
+    糖尿病肾病 = st.selectbox("糖尿病肾病 (有 = 1, 无 = 0)", [1, 0], index=1)
 
     # 提交按钮
-    if st.button("提交"):
-        user = Subject(认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降)
+    if st.button(label="提交"):
+        user = Subject(认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降，糖尿病肾病)
         user.make_predict()
 
 
-if __name__ == "__main__":
-    main()
+main()
