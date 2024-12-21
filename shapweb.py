@@ -81,8 +81,9 @@ def main():
 
     # 提交按钮
     if st.button(label="提交"):
-        user = Subject(认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降，糖尿病肾病)
+        user = Subject(认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降, 糖尿病肾病)
         user.make_predict()
+
 
 
 main()
