@@ -6,42 +6,58 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def make_predict(self):
-    # 将输入数据转化为 DataFrame
-    subject_data = {
-        "认知障碍": [self.认知障碍],
-        "体育锻炼运动量": [self.体育锻炼运动量],
-        "慢性疼痛": [self.慢性疼痛],
-        "营养状态": [self.营养状态],
-        "HbA1c": [self.HbA1c],
-        "查尔斯共病指数": [self.查尔斯共病指数],
-        "步速下降": [self.步速下降],
-        "糖尿病肾病": [self.糖尿病肾病],
-    }
+def main():
+    # 加载模型
+    lgbm = joblib.load('xgb_model.pkl')  # 更新模型路径
+    # lgbm = joblib.load('./lgbm.pkl')  # 上传到 GitHub 所需路径，路径无需更改
 
-    df_subject = pd.DataFrame(subject_data)
+    # 定义输入特征
 
-    # 对分类变量进行编码
-    df_subject = pd.get_dummies(df_subject, drop_first=True)  # drop_first=True 避免虚拟变量陷阱
+    # 定义特征输入类
+    class Subject:
+        def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降,糖尿病肾病):
+            self.认知障碍 = 认知障碍
+            self.体育锻炼运动量 = 体育锻炼运动量
+            self.慢性疼痛 = 慢性疼痛
+            self.营养状态 = 营养状态
+            self.HbA1c = HbA1c
+            self.查尔斯共病指数 = 查尔斯共病指数
+            self.步速下降 = 步速下降
+            self.糖尿病肾病 = 糖尿病肾病
 
-    # 模型预测
-    prediction = lgbm.predict_proba(df_subject)[:, 1]
-    adjusted_prediction = np.round(prediction * 100, 2)
-    st.write(f"""
-        <div class='all'>
-            <p style='text-align: center; font-size: 20px;'>
-                <b>模型预测老年糖尿病患者衰弱风险为 {adjusted_prediction[0]} %</b>
-            </p>
-        </div>
-    """, unsafe_allow_html=True)
+        def make_predict(self):
+            # 将输入数据转化为 DataFrame
+            subject_data = {
+                "认知障碍": [self.认知障碍],
+                "体育锻炼运动量": [self.体育锻炼运动量],
+                "慢性疼痛": [self.慢性疼痛],
+                "营养状态": [self.营养状态],
+                "HbA1c": [self.HbA1c],
+                "查尔斯共病指数": [self.查尔斯共病指数],
+                "步速下降": [self.步速下降],
+                "糖尿病肾病": [self.糖尿病肾病],
+            }
 
-    # SHAP 可视化
-    explainer = shap.Explainer(lgbm)
-    shap_values = explainer.shap_values(df_subject)
+            df_subject = pd.DataFrame(subject_data)
 
-    # 绘制 SHAP 力图
-    shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], df_subject.iloc[0, :], matplotlib=True)
-    st.pyplot(plt.gcf())
+            # 模型预测
+            prediction = lgbm.predict_proba(df_subject)[:, 1]
+            adjusted_prediction = np.round(prediction * 100, 2)
+            st.write(f"""
+                <div class='all'>
+                    <p style='text-align: center; font-size: 20px;'>
+                        <b>模型预测老年糖尿病患者衰弱风险为 {adjusted_prediction[0]} %</b>
+                    </p>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # SHAP 可视化
+            explainer = shap.Explainer(lgbm)
+            shap_values = explainer.shap_values(df_subject)
+
+            # 绘制 SHAP 力图
+            shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], df_subject.iloc[0, :], matplotlib=True)
+            st.pyplot(plt.gcf())
 
 
     # 设置页面配置
