@@ -15,7 +15,7 @@ def main():
 
     # 定义特征输入类
     class Subject:
-        def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降,糖尿病肾病):
+        def __init__(self, 认知障碍, 体育锻炼运动量, 慢性疼痛, 营养状态, HbA1c, 查尔斯共病指数, 步速下降, 糖尿病肾病):
             self.认知障碍 = 认知障碍
             self.体育锻炼运动量 = 体育锻炼运动量
             self.慢性疼痛 = 慢性疼痛
@@ -35,7 +35,7 @@ def main():
                 "HbA1c": [self.HbA1c],
                 "查尔斯共病指数": [self.查尔斯共病指数],
                 "步速下降": [self.步速下降],
-                "糖尿病肾病": [self.糖尿病肾病],
+                "糖尿病肾病": [self.糖尿病肾病]
             }
 
             df_subject = pd.DataFrame(subject_data)
@@ -72,10 +72,10 @@ def main():
 
     # 输入特征
     认知障碍 = st.selectbox("认知障碍 (是 = 1, 否 = 0)", [1, 0], index=1)
-    体育锻炼运动量 = st.selectbox("体育锻炼运动量", ["低运动量", "中运动量", "高运动量"], index=0)
+    体育锻炼运动量 = st.selectbox("体育锻炼运动量 (低运动量 = 1, 中运动量 = 2, 高运动量 = 3,)" [1,2,3], index=1)
     慢性疼痛 = st.selectbox("慢性疼痛 (有 = 1, 无 = 0)", [1, 0], index=1)
-    营养状态 = st.selectbox("营养状态", ["营养良好", "营养不良风险", "营养不良"], index=0)
-    HbA1c = st.number_input("HbA1c (mmol/L)", value=7.0, min_value=4.0, max_value=20.0)
+    营养状态 = st.selectbox("营养状态 (营养不良 = 0, 营养不良风险 = 1, 营养良好 = 2,)" [0,1,2], index=1)
+    HbA1c = st.number_input("HbA1c (mmol/L)", value=7.0, min_value=4.0, max_value=30.0)
     查尔斯共病指数 = st.number_input("查尔斯指数", value=2, min_value=0, max_value=30)
     步速下降 = st.selectbox("步速下降 (是 = 1, 否 = 0)", [1, 0], index=1)
     糖尿病肾病 = st.selectbox("糖尿病肾病 (有 = 1, 无 = 0)", [1, 0], index=1)
